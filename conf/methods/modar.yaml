@@ -1,0 +1,7 @@
+base: conf/methods/common.yaml
+
+model:
+  schedule_mode: modar
+
+train:
+  save_dir: outputs/modar

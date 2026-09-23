@@ -1,0 +1,42 @@
+name: modar
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      # ---- PyTorch (CUDA 12.8 wheels: V100 through RTX 5090/Blackwell) -------
+      - --extra-index-url https://download.pytorch.org/whl/cu128
+      - torch==2.8.0
+      - torchvision==0.23.0
+
+      # ---- core ------------------------------------------------------------
+      - numpy
+      - scipy
+      - tqdm
+      - pyyaml
+      - psutil
+      - requests
+      - pillow
+      - pytest
+      - "huggingface_hub>=0.32"
+
+      # ---- training / config / logging --------------------------------------
+      - omegaconf
+      - wandb==0.27.0
+
+      # ---- media / trajectory tooling --------------------------------------
+      - mujoco
+      - imageio[ffmpeg]
+      - opencv-python-headless
+      - h5py
+      - numba
+      - termcolor
+      - lxml
+      - gymnasium
+      - "qpsolvers[quadprog]"
+      # CoTracker is distributed under CC BY-NC 4.0, separately from ModAR.
+      - git+https://github.com/facebookresearch/co-tracker.git@82e02e8029753ad4ef13cf06be7f4fc5facdda4d
+
+      # DINOv2 backbone is loaded via torch.hub (facebookresearch/dinov2);
+      # weights are cached to ~/.cache/torch/hub on first use.

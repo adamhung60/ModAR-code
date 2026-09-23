@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  scripts/mf train METHOD [--gpus 0,1] [key=value ...]
+  scripts/mf show METHOD
+
+METHOD is one of:
+  modar, unified, disjoint, independent_noise, action_only
+
+Examples:
+  scripts/mf train modar --gpus 0
+  scripts/mf train modar --gpus 0,1 data.n_dyn_train=50 train.wandb=true
+  scripts/mf show independent_noise
+EOF
+}
+
+config_path() {
+  local method="${1:?method is required}"
+  local path="$REPO/conf/methods/${method%.yaml}.yaml"
+  [[ -f "$path" ]] || {
+    echo "Unknown method '$method'. See scripts/mf --help." >&2
+    exit 2
+  }
+  printf '%s\n' "$path"
+}
+
+cmd_train() {
+  local method="${1:?usage: scripts/mf train METHOD [--gpus 0,1] [key=value ...]}"
+  shift
+  local gpus="0"
+  local -a overrides=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --gpus)
+        gpus="${2:?--gpus requires a comma-separated device list}"
+        shift 2
+        ;;
+      -h|--help)
+        usage
+        return
+        ;;
+      *)
+        overrides+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  local config nproc
+  config="$(config_path "$method")"
+  nproc="$(awk -F, '{print NF}' <<<"$gpus")"
+  cd "$REPO"
+  CUDA_VISIBLE_DEVICES="$gpus" torchrun \
+    --standalone \
+    --nproc_per_node="$nproc" \
+    scripts/train/train_modality_forcing.py \
+    "config=$config" \
+    "${overrides[@]}"
+}
+
+cmd_show() {
+  local config
+  config="$(config_path "${1:?usage: scripts/mf show METHOD}")"
+  cd "$REPO"
+  python -c \
+    'from omegaconf import OmegaConf; from util.modality_forcing.config_paths import load_config; import sys; print(OmegaConf.to_yaml(load_config(sys.argv[1]), resolve=True))' \
+    "$config"
+}
+
+case "${1:-}" in
+  train)
+    shift
+    cmd_train "$@"
+    ;;
+  show)
+    shift
+    cmd_show "$@"
+    ;;
+  -h|--help|"")
+    usage
+    ;;
+  *)
+    echo "Unknown command '$1'." >&2
+    usage >&2
+    exit 2
+    ;;
+esac

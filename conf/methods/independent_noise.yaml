@@ -1,0 +1,9 @@
+base: conf/methods/common.yaml
+
+model:
+  # Independent flow times during training; joint denoising at deployment.
+  schedule_mode: independent
+  infer_schedule: unified
+
+train:
+  save_dir: outputs/independent_noise

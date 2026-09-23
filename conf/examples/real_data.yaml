@@ -1,0 +1,40 @@
+base: conf/methods/modar.yaml
+
+# Generic mixed-source example for a user's own data. See docs/REAL_DATA.md.
+model:
+  modalities: [dino, tracks, depth, action]
+  generation_order: [tracks, dino, depth, action]
+  history_modalities: [dino, depth]
+  image_height: 126
+  image_width: 224
+  grid_height: 9
+  grid_width: 16
+  track_grid_height: 9
+  track_grid_width: 16
+  n_tasks: 3
+
+data:
+  tasks: &tasks [task_one, task_two, task_three]
+  task_vocab: *tasks
+  require_matching_task_sets: true
+  sources:
+    - name: actionless_video
+      stream: dynamics
+      data_root: ${oc.env:MODAR_VIDEO_DATA_ROOT,data/real/video}
+      tasks: *tasks
+      train_count: 200
+      weight: 1.0
+      depth_mean: 0.0
+      depth_std: 1.0
+    - name: robot
+      # A joint source trains visual dynamics and actions from robot demos.
+      stream: joint
+      data_root: ${oc.env:MODAR_ROBOT_DATA_ROOT,data/real/robot}
+      tasks: *tasks
+      train_count: 100
+      weight: 1.0
+      depth_mean: 0.0
+      depth_std: 1.0
+
+train:
+  save_dir: outputs/real_data

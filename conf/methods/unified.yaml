@@ -1,0 +1,7 @@
+base: conf/methods/common.yaml
+
+model:
+  schedule_mode: unified
+
+train:
+  save_dir: outputs/unified

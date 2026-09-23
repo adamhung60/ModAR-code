@@ -1,0 +1,12 @@
+base: conf/methods/common.yaml
+
+model:
+  schedule_mode: disjoint
+  p_dino: 0.2
+  p_tracks: 0.2
+  p_depth: 0.2
+  p_image: 0.2
+  p_action: 0.2
+
+train:
+  save_dir: outputs/disjoint

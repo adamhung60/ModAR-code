@@ -1,0 +1,99 @@
+# Shared RoboTwin six-task setup used by all published methods.
+model:
+  modalities: [dino, tracks, depth, image, action]
+  generation_order: [tracks, dino, depth, image, action]
+  history_modalities: [dino, depth, image]
+  dim: 384
+  n_shared_layers: 6
+  n_expert_layers: 2
+  n_expert_layers_dino: 2
+  n_expert_layers_tracks: 1
+  n_expert_layers_depth: 2
+  n_expert_layers_image: 2
+  n_expert_layers_action: 2
+  expert_dim_dino: 384
+  expert_dim_tracks: 128
+  expert_dim_depth: 384
+  expert_dim_image: 384
+  expert_dim_action: 128
+  n_heads: 6
+  rope_split: [24, 20, 20]
+  obs_history: 1
+  obs_future: 2
+  obs_stride: 8
+  action_horizon: 16
+  action_dim: 14
+  proprio_dim: 14
+  image_height: 168
+  image_width: 224
+  grid_height: 12
+  grid_width: 16
+  track_grid_height: 12
+  track_grid_width: 16
+  image_patch_size: 14
+  window_mode: full
+  action_pad_mode: hold
+  obs_pad_supervise: false
+  pred_type_dino: x
+  pred_type_tracks: x
+  pred_type_depth: x
+  pred_type_image: x
+  pred_type_action: x
+  logitnorm_dino: [-2.0, 1.0]
+  logitnorm_tracks: [0.0, 1.0]
+  logitnorm_depth: [-1.0, 1.6]
+  logitnorm_image: [-1.0, 1.0]
+  logitnorm_action: [-1.0, 1.0]
+  logitnorm_unified: [-1.0, 1.0]
+  cond_noise_beta: 0.5
+  cond_noise_label_t: true
+  solver: euler
+  steps_per_phase: 8
+
+data:
+  data_root: ${oc.env:MODAR_DATA_ROOT,data/robotwin6_packed}
+  tasks: &robotwin6_tasks
+    - dump_bin_bigbin
+    - pick_diverse_bottles
+    - place_bread_skillet
+    - put_bottles_dustbin
+    - stack_bowls_three
+    - turn_switch
+  task_vocab: *robotwin6_tasks
+  n_action_train: 50
+  n_action_val: 10
+  n_dyn_train: 250
+  n_dyn_val: 50
+  split_universe: 300
+  depth_max_m: 10.0
+  depth_norm_mode: log
+  depth_mean: -0.355272
+  depth_std: 0.269182
+
+train:
+  device: cuda
+  batch_size: 12
+  num_workers: 8
+  lr: 0.0001
+  lr_cosine: false
+  weight_decay: 0.1
+  betas: [0.9, 0.95]
+  grad_clip: 1.0
+  bf16: true
+  ema: true
+  ema_decay: 0.999
+  seed: 42
+  max_samples: 57600000
+  warmup_samples: 48000
+  eval_every_samples: 4800000
+  ckpt_every_samples: 4800000
+  last_every_samples: 480000
+  integ_every_samples: 4800000
+  ddp_timeout_minutes: 120
+  max_eval_batches: 20
+  integ_batches: 1
+  log_every: 50
+  resume: auto
+  wandb: false
+  wandb_project: modar_robotwin6
+  save_dir: outputs/modar

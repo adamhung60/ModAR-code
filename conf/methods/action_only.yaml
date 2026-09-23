@@ -1,0 +1,13 @@
+base: conf/methods/common.yaml
+
+data:
+  # Prevent the larger actionless pool from contributing action supervision.
+  split_pool: action
+
+model:
+  schedule_mode: action_only
+  modalities: [dino, depth, action]
+  history_modalities: [dino, depth]
+
+train:
+  save_dir: outputs/action_only

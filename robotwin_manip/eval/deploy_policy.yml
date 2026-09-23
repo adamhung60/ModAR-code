@@ -1,0 +1,20 @@
+policy_name: null
+task_name: null
+task_config: null
+ckpt_setting: null
+seed: null
+instruction_type: unseen
+
+wam_checkpoint: null
+device: cuda:0
+camera: head_camera
+action_exec_horizon: null
+image_height: 168
+image_width: 224
+no_ema: false
+steps_per_phase: null
+solver: null
+depth_mean: null
+depth_std: null
+depth_max_m: null
+depth_norm_mode: null
